@@ -17,6 +17,7 @@
 #include <mutex>
 #include <unordered_map>
 #include <vector>
+#include <string>
 
 // 包含库的通用定义，特别是 CPPEV_PUBLIC 和 CPPEV_INTERNAL 宏（用于控制符号可见性，提高编译和链接效率）。
 #include "cppev/common.h"
