@@ -2,7 +2,7 @@
 
 namespace cppev
 {
-
+// 位运算符重载实现
 fd_event operator&(fd_event lhs, fd_event rhs)
 {
     return static_cast<fd_event>(static_cast<int>(lhs) & static_cast<int>(rhs));
@@ -51,6 +51,9 @@ const fd_event_mode event_loop::fd_event_mode_default_ =
 event_loop::event_loop(void *data, void *owner)
     : data_(data), owner_(owner), stop_(false)
 {
+    // 它调用了操作系统的 API（比如 epoll_create）。
+    //它向操作系统申请了一个 “监控之眼”（Epoll 句柄）。
+    //有了这个句柄，这个“项目经理”才有能力同时监控成千上万个连接。
     fd_io_multiplexing_create_nts();
 }
 
@@ -84,6 +87,7 @@ int event_loop::ev_loads() const noexcept
     return fd_event_datas_.size();
 }
 
+// 设置文件描述符的事件模式（TS）。
 void event_loop::fd_set_mode(const std::shared_ptr<io> &iop,
                              fd_event_mode ev_mode)
 {
@@ -91,16 +95,19 @@ void event_loop::fd_set_mode(const std::shared_ptr<io> &iop,
     fd_event_modes_[iop->fd()] = ev_mode;
 }
 
+// 注册文件描述符的事件（TS）。
 void event_loop::fd_register(const std::shared_ptr<io> &iop, fd_event ev_type,
                              const fd_event_handler &handler, priority prio)
 {
     std::unique_lock<std::mutex> lock(lock_);
+    // nts防止死锁
     fd_register_nts(iop, ev_type, handler, prio);
 }
 
 void event_loop::fd_activate(const std::shared_ptr<io> &iop, fd_event ev_type)
 {
     std::unique_lock<std::mutex> lock(lock_);
+    // nts防止死锁
     fd_io_multiplexing_add_nts(iop, ev_type);
 }
 
@@ -224,7 +231,7 @@ bool event_loop::stop_loop_ts_wl(waiter_type waiter)
         }
     };
     this->fd_register_and_activate(std::dynamic_pointer_cast<io>(iopps[1]),
-                                   fd_event::fd_writable, handler,
+                                   fd_event::fd_wri table, handler,
                                    priority::lowest);
 
     std::unique_lock<std::mutex> lock(lock_);
