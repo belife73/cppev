@@ -1,0 +1,7 @@
+build --cxxopt="-std=c++17"
+build --cxxopt="-O3"
+build --cxxopt="-Wall"
+build --cxxopt="-Wextra"
+test --local_test_jobs=1
+test --test_timeout=10
+test --flaky_test_attempts=3

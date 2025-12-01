@@ -1,0 +1,48 @@
+name: Cppev CI
+run-name: Cppev CI 🚀
+on: [push]
+jobs:
+  bazel-build-and-test:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-go@v5
+      with:
+        go-version: '>=1.20.0'
+    - uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - run: go install github.com/bazelbuild/bazelisk@latest
+    - run: ln $(go env GOPATH)/bin/bazelisk $(go env GOPATH)/bin/bazel
+
+    - run: bazel build //...
+    - run: bazel test //...
+
+  cmake-build:
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest ]
+        cmake_build_type: [ RelWithDebInfo ]
+    runs-on: ${{ matrix.os }}
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set reusable strings
+      id: strings
+      shell: bash
+      run: |
+        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT";
+
+    - name: Configure CMake
+      run: >
+        cmake -B ${{ steps.strings.outputs.build-output-dir }}
+        -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type }}
+        -S ${{ github.workspace }}
+
+    - name: Build
+      run: |
+        cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.cmake_build_type }}
