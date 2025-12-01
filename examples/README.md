@@ -1,70 +1,82 @@
-- # 示例教程
+# Cppev
 
-  
+Cppev 是一个高性能的 C++ 异步 I/O、多线程及多进程库。
 
-  
+## 架构 (Architecture)
 
-  ### 1. TCP 压力测试
+### I/O
 
-  
+- **支持多种 I/O 操作**：包括磁盘文件、管道 (pipe)、命名管道 (fifo) 以及套接字 (socket)。
+- **套接字协议类型支持**：TCP / UDP。
+- **协议族支持**：IPv4 / IPv6 / Unix 域 (unix-domain)。
+- **支持 I/O 事件监听**：基于 I/O 多路复用技术。
+  - **事件类型**：可读 (readable) / 可写 (writable)。
+  - **事件模式**：水平触发 (level-trigger) / 边缘触发 (edge-trigger) / 单次触发 (oneshot)。
 
-  TCP 服务端启动监听线程，以支持 IPv4 / IPv6 / Unix 协议族。
+### 多线程 (Multithreading)
 
-  TCP 客户端启动连接线程，以连接至服务端。
+- 支持子线程 (subthread) 和线程池 (threadpool)。
 
-  服务端和客户端均初始化线程池来处理 TCP 连接。
+### 进程间通信 (Interprocess Communication)
 
-  - **用法**
+- 支持信号量 (semaphore) 和共享内存 (shared-memory)。
 
-    Bash
+### 线程与进程同步 (Thread and Process Synchronization)
 
-    ```
-    $ cd examples/tcp_stress
-    $ ./simple_server       # 终端窗口-1
-    $ ./simple_client       # 终端窗口-2
-    ```
+- 支持线程/进程级别的信号处理 (signal-handling)、互斥锁 (mutex)、条件变量 (condition-variable) 以及读写锁 (read-write-lock)。
 
-  
+### 二进制文件加载 (Binary File Loading)
 
-  ### 2. 大文件传输
+- 支持通过子进程加载可执行文件。
+- 支持在运行时加载动态库。
 
-  
+### Reactor 模型 (Reactor)
 
-  TCP 客户端发送请求的文件名。
+- 支持 TCP 服务端和客户端。
+- 采用多线程、非阻塞 I/O 以及水平触发事件监听的方式，兼具高性能与健壮性。
 
-  TCP 服务端缓存并传输所请求的文件。
+## 使用方法 (Usage)
 
-  TCP 客户端接收文件并将其存储到磁盘。
+### 前置条件 (Prerequisite)
 
-  - **用法**
+- **操作系统**：Linux / macOS
+- **依赖项**：googletest
 
-    Bash
+### 使用 CMake 构建 (Build with cmake)
 
-    ```
-    $ cd example/file_transfer
-    $ touch /tmp/test_cppev_file_transfer_6C0224787A17.file
-    $ # 向文件中写入数据使其变大，例如 20MB 或更大 #
-    $ ./file_transfer_server        # 终端窗口-1
-    $ ./file_transfer_client        # 终端窗口-2
-    $ openssl md5 /tmp/test_cppev_file_transfer_6C0224787A17.file*
-    ```
+**构建 (Build)**
 
-  
+```Bash
+$ mkdir build && cd build
+$ cmake .. && make
+```
 
-  ### 3. IO 事件循环
+**安装 (Install)**
 
-  
+```Bash
+$ make install
+```
 
-  使用原生事件循环通过 TCP / UDP 进行连接。
+**运行单元测试 (Run Unittest)**
 
-  - **用法**
+```Bash
+$ cd unittest && ctest
+```
 
-    Bash
+### 使用 Bazelisk 构建 (Build with bazelisk)
 
-    ```
-    $ cd examples/io_evlp
-    $ ./tcp_server      # 终端窗口-1
-    $ ./tcp_client      # 终端窗口-2
-    $ ./udp_server      # 终端窗口-3
-    $ ./udp_client      # 终端窗口-4
-    ```
+**构建 (Build)**
+
+```Bash
+$ bazel build //...
+```
+
+**运行单元测试 (Run Unittest)**
+
+```Bash
+$ bazel test //...
+```
+
+## 快速开始 (Getting Started)
+
+请参阅示例 (examples) 以及相关教程。
