@@ -1,67 +1,67 @@
-# 含义：定义这个工作流的名称。它会显示在 GitHub 仓库的 "Actions" 标签页列表中。
-name: Cppev CI 
-# 定义每一次具体运行（Run）的名称。当你推送代码触发一次构建时，这次构建在列表里会显示这个名字。🚀 是装饰用的 Emoji，方便视觉识别。
-run-name: Cppev CI 🚀
-# 定义触发条件。[push] 表示只要有代码 推送 (push) 到仓库的任意分支，就会自动触发这个工作流。
-on: [push]
-# jobs 开始定义任务列表。bazel-build-and-test 是这个任务的唯一 ID。
-jobs:
-  # 它告诉 GitHub：“请帮我裂变出多个子任务”。
-  # 这里定义了一个变量 os，包含两个值。GitHub 会自动运行两次这个任务：一次在 Ubuntu 上，一次在 macOS 上。这用来测试跨平台兼容性。
-  bazel-build-and-test:
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-latest ]
-    runs-on: ${{ matrix.os }}
-    # 开始定义这个任务具体要执行的步骤序列。
-    steps:
-    # 把你的 GitHub 仓库代码下载（拉取）到当前的运行环境中，否则后面的命令没代码可编译。
-    - uses: actions/checkout@v4
-    # 配置 Go 语言环境
-    # Bazel 的启动器，通常是用 Go 写的
-    - uses: actions/setup-go@v5
-      with:
-        go-version: '>=1.20.0'
-    # 配置 Python 环境
-    # Bazel 构建系统通常依赖 Python 来运行一些脚本或测试
-    - uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
+# # 含义：定义这个工作流的名称。它会显示在 GitHub 仓库的 "Actions" 标签页列表中。
+# name: Cppev CI 
+# # 定义每一次具体运行（Run）的名称。当你推送代码触发一次构建时，这次构建在列表里会显示这个名字。🚀 是装饰用的 Emoji，方便视觉识别。
+# run-name: Cppev CI 🚀
+# # 定义触发条件。[push] 表示只要有代码 推送 (push) 到仓库的任意分支，就会自动触发这个工作流。
+# on: [push]
+# # jobs 开始定义任务列表。bazel-build-and-test 是这个任务的唯一 ID。
+# jobs:
+#   # 它告诉 GitHub：“请帮我裂变出多个子任务”。
+#   # 这里定义了一个变量 os，包含两个值。GitHub 会自动运行两次这个任务：一次在 Ubuntu 上，一次在 macOS 上。这用来测试跨平台兼容性。
+#   bazel-build-and-test:
+#     strategy:
+#       matrix:
+#         os: [ ubuntu-latest, macos-latest ]
+#     runs-on: ${{ matrix.os }}
+#     # 开始定义这个任务具体要执行的步骤序列。
+#     steps:
+#     # 把你的 GitHub 仓库代码下载（拉取）到当前的运行环境中，否则后面的命令没代码可编译。
+#     - uses: actions/checkout@v4
+#     # 配置 Go 语言环境
+#     # Bazel 的启动器，通常是用 Go 写的
+#     - uses: actions/setup-go@v5
+#       with:
+#         go-version: '>=1.20.0'
+#     # 配置 Python 环境
+#     # Bazel 构建系统通常依赖 Python 来运行一些脚本或测试
+#     - uses: actions/setup-python@v5
+#       with:
+#         python-version: '3.11'
 
-    # 运行 Shell 命令。使用 Go 命令从 GitHub 安装最新版的 bazelisk 工具
-    - run: go install github.com/bazelbuild/bazelisk@latest
-    # 创建一个软链接
-    # 把刚安装的 bazelisk 链接为命令 bazel。
-    # 这样当你在后面输入 bazel 时，实际上运行的是 bazelisk。Bazelisk 会自动帮你下载并管理适合项目的 Bazel 版本
-    - run: ln $(go env GOPATH)/bin/bazelisk $(go env GOPATH)/bin/bazel
+#     # 运行 Shell 命令。使用 Go 命令从 GitHub 安装最新版的 bazelisk 工具
+#     - run: go install github.com/bazelbuild/bazelisk@latest
+#     # 创建一个软链接
+#     # 把刚安装的 bazelisk 链接为命令 bazel。
+#     # 这样当你在后面输入 bazel 时，实际上运行的是 bazelisk。Bazelisk 会自动帮你下载并管理适合项目的 Bazel 版本
+#     - run: ln $(go env GOPATH)/bin/bazelisk $(go env GOPATH)/bin/bazel
 
-    # //...：是 Bazel 的通配符，意思是“递归编译本项目下的所有目标（Target）
-    - run: bazel build //...
-    # 运行项目中定义的所有单元测试。如果测试失败，CI 就会报错变红
-    - run: bazel test //...
+#     # //...：是 Bazel 的通配符，意思是“递归编译本项目下的所有目标（Target）
+#     - run: bazel build //...
+#     # 运行项目中定义的所有单元测试。如果测试失败，CI 就会报错变红
+#     - run: bazel test //...
 
-  cmake-build:
-    # 定义第二个任务的 ID。这两个任务（Bazel 和 CMake）默认是并行运行的
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, macos-latest ]
-        cmake_build_type: [ RelWithDebInfo ]
-    runs-on: ${{ matrix.os }}
-    steps:
-    - uses: actions/checkout@v4
+#   cmake-build:
+#     # 定义第二个任务的 ID。这两个任务（Bazel 和 CMake）默认是并行运行的
+#     strategy:
+#       matrix:
+#         os: [ ubuntu-latest, macos-latest ]
+#         cmake_build_type: [ RelWithDebInfo ]
+#     runs-on: ${{ matrix.os }}
+#     steps:
+#     - uses: actions/checkout@v4
 
-    - name: Set reusable strings
-      id: strings
-      shell: bash
-      run: |
-        echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT";
+#     - name: Set reusable strings
+#       id: strings
+#       shell: bash
+#       run: |
+#         echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT";
 
-    - name: Configure CMake
-      run: >
-        cmake -B ${{ steps.strings.outputs.build-output-dir }}
-        -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type }}
-        -S ${{ github.workspace }}
+#     - name: Configure CMake
+#       run: >
+#         cmake -B ${{ steps.strings.outputs.build-output-dir }}
+#         -DCMAKE_BUILD_TYPE=${{ matrix.cmake_build_type }}
+#         -S ${{ github.workspace }}
 
-    - name: Build
-      run: |
-        cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.cmake_build_type }}
+#     - name: Build
+#       run: |
+#         cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.cmake_build_type }}
